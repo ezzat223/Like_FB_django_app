@@ -1,0 +1,414 @@
+---------------------------         
+1- Create a Virtual env
+---------------------------
+> cd location
+
+> virtualenv give_it_a_name
+        OR
+> python -m venv give_it_a_name
+
+
+------------------------------
+2- Activate
+-------------------------------
+> its_name\Scripts\activate
+
+
+> pip install -r requirements.txt
+
+----------------------
+3- Install Django
+-----------------------
+> pip install django
+
+
+------------------------------
+4- Create django project
+------------------------------
+> cd venv_name
+> django-admin startproject name_of_project
+
+
+---------------------------
+5- Run your project
+--------------------------
+> cd name_of_project
+> python manage.py runserver
+
+-----------------------------------------------------------
+############################################################    
+--------------------------------------
+To apply migrations to db.sqlite3
+--------------------------------------
+> python manage.py migrate
+
+--------------------------------------
+To open vs code in this distination
+--------------------------------------
+> code .
+
+-------------------------------------------------------------------------------
+#########################################################################
+You divide your project into APPs:
+-----------------------------------------------------
+|    VIEWS     | MODELS    |  TEMPLATES   |   URLS  |                                                   
+|--------------|-----------|--------------|---------|
+|-Leader       |- Database |- Frontend    |         |                                                 
+|-Controls     |           |              |         |                                 
+|everything    |           |              |         |                                
+|- Send data to|           |              |         |                            
+|Database to   |           |              |         |                            
+|display it    |           |              |         |                            
+|& receives    |           |              |         |                            
+|data from it  |           |              |         |                            
+-----------------------------------------------------
+
+So how to create an app?
+-------------------------
+1- Be inside your project (at manage.py) then
+
+> py manage.py startapp name_of_app
+---------------------------------------------
+
+
+Now you need to link it with your Project, How?
+------------------------------------------------
+1- In Project files Go to (settings.py) --> INSTALLED_APPS []
+
+> 'name.apps.NameConfig',       #(name here is name of your app)
+---------------------------------------------
+
+
+
+Then add it to URLS, How?
+-------------------------------
+1- In Project files Go to (urls.py) you will find the instructions:
+You already have: from django.urls import path
+Import include also so it becomes:
+
+> from django.urls import path, include
+
+2- In urlpatterns [] add your path:
+> path('name', include('appName.urls'))
+'name'    --> you want to reach the page through ,which is after the /
+           but if you want it to be your main page let it be '' only
+include() --> create (urls.py) in your app
+
+_____________________________________________________________________________________________________________________________________________________________________
+                                VIEWS 
+                          __________________
+         WILL NOT USE IT ONLY FOR KNOWLEDGE AS WE WILL USE TEMPLATES
+     _________________________________________________________________
+1- (views.py) in your app, import 
+> from django.http import HttpResponse
+
+2- Relation between (Request and Response) is a function:
+-- so (a Function is a page)
+def index(request):
+    return HttpResponse("Hello World")
+                OR
+    pass --> Skips so u don't get error
+
+
+
+
+Now make a link for that function (determine its path)
+3- (urls.py) in your app:
+------------------------------------------------------------------------------
+> from django.urls import path
+> from . import views                ( . means your location)
+
+> urlpatterns = [
+        path('name', views.index, name = 'any_name')
+]
+**name --> will be used for links later
+------------------------------------------------------------------------------
+'name' --> you want to reach the page through ,which is after the /
+           but if you want it to be your main page let it be '' only
+index  --> function name
+------------------------------------------------------------------------------
+_____________________________________________________________________________________________________________________________________________________________________
+                             TEMPLATES 
+                             Rendering
+                          __________________
+(MODELS) Link with (VIEWS) Link with (TEMPLATES)
+
+**dtl** --> django templates language
+
+- Create a template, How?
+----------------------------
+1- Create a templates folder for each app or one for the whole project.
+2- In (settings.py) 
+----------------------
+> import os
+> TEMPLATES = [
+        'DIRS' : [os.path.join(BASE_DIR, 'templates')],
+]
+------------------------
+3- In (views.py)
+---------------------
+> def index(request):
+    return render(request, 'html_path', {'name': 'ahmed'})
+
+('html_path') --> 'pages/index.html'
+(Context) --> variables
+_____________________________________________________________________________________________________________________________________________________________________
+                        dtl
+                -----------------
+---------------------------
+filters (|): on variables
+---------------------------
+name = {{name | capfirst}}
+name = {{name | capfdefault:'Not found'irst}}
+
+1-  capfirst
+2- (default:'Not found') --> if a value returned from database was empty give it a default value
+3- (slice:'1:4')
+4- (add:'mazen')    --> concatination
+5- (cut:' ')        --> Remove 
+6- (filesizeformat) --> Numerical to size
+7- (date:"")
+
+--------------
+tags {% tag %} :
+---------------
+______________________________________________________________________
+                        Static files
+                     __________________
+To link frontend to your backend as u're working on backend
+- Create a (static folder) inside (ur project)
+- Inside static create the folders (css, js, image)
+- In (settings.py) Now you have to activate (static folder)
+    U want to tell him where is the static files and take it to where?
+--------------------------
+> STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+> STATIC_URL = 'static/'
+                Gaybo mnen??
+> STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'myfirstdjango/static')
+]
+                FINALLY Run command
+> py manage.py collectstatic
+
+______________________________________________________________________
+                      MODELS --> Database
+                     ______________________
+- In your app
+# What are models?
+
+----------
+Filtering :
+-----------
+> x = {
+        'pro':Product.objects.get(),
+    }
+name = 'oppo'
+id = 1
+price = 99
+-------------OR----------
+> pro = Product.objects.all()
+> x = {
+        'pro':Pro.filter(price=100),
+        'pro':Pro.filter(name__contains='a'),
+        'pro':Pro.filter(price__in=[10, 100, 500]),
+        'pro':Pro.filter(price__range=(10, 500)),
+        'pro':Pro.exclude(price=100),
+    }
+
+-----------
+Ordering :
+-----------
+> pro = Product.objects.all()
+> x = {
+        'pro':Pro.order_by('category'),
+    }
+
+-----------
+Count :
+-----------
+> pro = Product.objects.all()
+> x = {
+        'pro':str(Pro.count()),
+    }
+_________________________________________________________________
+                        Create Admin user
+                      _______________________
+> py manage.py createsuperuser
+shehab
+ezzat22hegazy@gmail.com
+000539
+
+_____________________________________________________________________________________________________________________________________________________________________
+                        Media files
+                    ____________________
+- (Static files) u need to activate media in (settings.py)
+--------------------------
+# MEDIA
+> MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+> MEDIA_URL = 'media/'
+---------------------------
+- In (urls.py) of ur project
+---------------------------
+> from django.conf import settings
+> from django.conf.urls.static import static
+------Then add this to urlpatterns
++ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+______________________________________________________________________
+                        Form
+                    _____________
+1- <form method=""></form>
+- method --> GET..... will be shown in ip
+             POST.... Critical information 
+             |--> first line in form --> {% csrf_token %}
+2- (models.py) Now create a model in ur app
+-------------------------
+3- (views.py) :
+-----------------------------
+- (request) receives the data u sent through the form 
+def about(request):
+    username = request.POST.get('username')
+    password = request.POST.get('password')
+    
+    data = Login(username=username, password=password)
+    data.save()
+    
+    return render(request, 'pages/about.html', )
+-------
+POST or GET 
+get('') --> is for dict key
+---------
+> from .models import Login
+----------------------------------
+4- (admin.py) register :
+-----------------------------
+> from .models import Login
+> admin.site.register(Login)
+--------------------------------2nd way of forms by django------------
+1- In ur app create (forms.py) file:
+--------------------------------------
+> from django import forms
+
+> class Loginform(forms.Form):
+    username = forms.CharField(max_length=50)
+    password = forms.CharField(max_length=50)
+
+2- views.py:
+-------------
+> from .forms import Loginform
+def about(requesst):
+    return render(request, 'pages/about.html', {'lf':Loginform})
+
+3- in about.html :
+-------------------
+--------------------------------3rd way of forms by django------------
+1- (forms.py):
+---------------
+> from .models import Login 
+> class Loginform(forms.ModelForm):
+    class Meta:
+        model = Login
+        (fields = '__all__') --> if u want all fields
+        (fields = ['username', 'password']) --> certain fields
+
+-----------------------------Crispy forms---------------
+1- Install:
+-------------
+> pip install django-crispy-forms
+> pip install django-bootstrap4
+
+
+2- in (settings.py):
+-------------
+> INSTALLED_APPS = [
+    'crispy_forms',
+]
+
+3- (settings.py) it uses bootstrap2 by default so change it to 4--> go 
+        to the end of the page:
+-------------------------------
+> CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+4- (file.html) load:
+--------------------
+{% extends "base.html" %}
+> {% load crispy_forms_tags %}
+> {{ form | crispy }}
+_________________________________________________________________
+                    Customise django admin
+                _________________________________
+- (admin.py) in any app (1 only):
+--------------------------
+> admin.site.site_header = "Shehab Phone"
+--- When u hover the site_header
+> admin.site.site_title = "Shehab Phone"
+
+-------------------------------
+-Change theme:
+--------------------------
+https://django-suit.readthedocs.io/en/v2/install.html
+
+- It's like an app
+- (app.py) in any (one app only)
+
+> from suit.apps import DjangoSuitConfig
+
+---------------------
+- Another Theme:
+--------------------
+> pip install django-grappelli
+
+2- (settings.py):
+-----------------
+> INSTALLED_APPS = [
+
+    'grappelli',
+    ]
+
+3- (urls.py) of ur project:
+--------------
+urlpatterns = [
+    path('grappelli/', include('grappelli.urls')),
+]
+_________________________________________________________________
+- Let's take products for example
+---------------
+- (admin.py):
+-------------------
+class ProductAdmin(admin.ModelAdmin):
+    # to show details of each product
+    list_display = ['name', 'price']
+
+admin.site.register(Product, ProductAdmin)
+______________________________________________________________________
+                        Crispy
+                    ---------------
+> pip install django-crispy-forms
+> pip install django-bootstrap5
+> pip install crispy-bootstrap5
+
+_____________________________________________________________________________________________________________________________________________________________________
+                    Mysql
+                -------------
+> pip install mysqlclient
+> DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "mydatabase",
+        "USER": "mydatabaseuser",
+        "PASSWORD": "mypassword",
+        "HOST": "127.0.0.1",
+        "PORT": "5432",
+    }
+}
+
+> python manage.py inspectdb > models.py
+This command uses the inspectdb management command provided by Django to introspect the database and generate Django models based on the existing tables.
+
+The output of the command is redirected to a file named models.py, which will contain the generated Django models.
+
+______________________________________________________________________
+                    Formatting
+                _______________
+> pip install black
+> py -m black .
+> black file.py
